@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixa do Retiro — Controle Financeiro</title>
+<style>
+  :root{
+    --paper:#fbf7ee;
+    --ink:#23291f;
+    --ink-soft:#5c6553;
+    --line:#e3dccb;
+    --green:#2f7a52;
+    --green-soft:#e7f1e9;
+    --red:#b0472f;
+    --red-soft:#f6e7e2;
+    --gold:#c08a2d;
+    --gold-soft:#f6ecd6;
+    --card:#ffffff;
+    --shadow:0 1px 2px rgba(35,41,31,.06),0 6px 18px rgba(35,41,31,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper);color:var(--ink);
+    line-height:1.45;-webkit-font-smoothing:antialiased;
+    padding:0 16px 80px;
+  }
+  .wrap{max-width:920px;margin:0 auto}
+
+  header{padding:26px 0 18px;border-bottom:2px solid var(--ink);margin-bottom:22px}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:4px}
+  #eventName{
+    font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+    border:none;background:transparent;border-bottom:2px dashed transparent;
+    padding:2px 0;min-width:220px;flex:1;
+  }
+  #eventName:hover{border-bottom-color:var(--line)}
+  #eventName:focus{outline:none;border-bottom-color:var(--gold)}
+  .hint{font-size:12px;color:var(--ink-soft)}
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+  .card .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+  .card .val{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .card.in .val{color:var(--green)}
+  .card.out .val{color:var(--red)}
+  .card.bal{background:var(--ink);border-color:var(--ink)}
+  .card.bal .lbl{color:#cdd2c4}
+  .card.bal .val{color:#fff}
+  .card.bal .val.neg{color:#ff9d86}
+  .card.bal .sub{font-size:12px;color:#cdd2c4;margin-top:2px}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap}
+  .tab{
+    border:none;background:transparent;font:inherit;font-weight:700;font-size:14px;
+    color:var(--ink-soft);padding:10px 14px;cursor:pointer;border-radius:8px 8px 0 0;
+    border-bottom:3px solid transparent;margin-bottom:-1px;
+  }
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--ink);border-bottom-color:var(--gold)}
+
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* form */
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:22px}
+  .form-card h2{font-size:15px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:120px 1fr 1fr 140px;gap:10px;align-items:end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12px;font-weight:700;color:var(--ink-soft)}
+  input,select{
+    font:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);
+    border-radius:9px;background:var(--paper);color:var(--ink);width:100%;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--gold);background:#fff}
+  .seg{display:flex;gap:6px}
+  .seg button{
+    flex:1;font:inherit;font-weight:700;font-size:13px;padding:9px 6px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);
+  }
+  .seg button.on-in{background:var(--green);border-color:var(--green);color:#fff}
+  .seg button.on-out{background:var(--red);border-color:var(--red);color:#fff}
+  .btn{
+    font:inherit;font-weight:700;font-size:15px;padding:11px 18px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--ink);background:var(--ink);color:#fff;
+  }
+  .btn:hover{opacity:.92}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:#fff}
+  .btn.sm{font-size:13px;padding:8px 12px}
+  .actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  th,td{padding:11px 14px;text-align:left;font-size:14px;border-bottom:1px solid var(--line)}
+  th{background:var(--paper);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .tag.in{background:var(--green-soft);color:var(--green)}
+  .tag.out{background:var(--red-soft);color:var(--red)}
+  .pos{color:var(--green);font-weight:700}
+  .neg{color:var(--red);font-weight:700}
+  .del{border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;padding:4px 6px;border-radius:6px}
+  .del:hover{background:var(--red-soft);color:var(--red)}
+  .empty{text-align:center;color:var(--ink-soft);padding:34px 16px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
+
+  /* report blocks */
+  .report{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+  .report h2{font-size:18px;margin-bottom:2px}
+  .report .rsub{font-size:13px;color:var(--ink-soft);margin-bottom:18px}
+  .line{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .line .v{font-variant-numeric:tabular-nums;font-weight:700}
+  .line.head{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;border-bottom:2px solid var(--ink)}
+  .line.sub{padding-left:16px;color:var(--ink-soft);font-size:14px}
+  .line.total{border-bottom:none;border-top:2px solid var(--ink);margin-top:4px;font-size:18px;font-weight:800;padding-top:12px}
+  .group-gap{height:18px}
+
+  /* meta + aneis */
+  .goal-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:22px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .goal-card .field{flex:1;min-width:200px}
+  .goal-now{font-size:13px;color:var(--ink-soft)}
+  .goal-now b{color:var(--gold);font-size:16px}
+
+  .rings{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+  .ring-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 14px 16px;box-shadow:var(--shadow);text-align:center}
+  .ring{position:relative;width:160px;height:160px;margin:0 auto 12px}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring circle{fill:none;stroke-width:13;stroke-linecap:round}
+  .ring circle.track{stroke:var(--line)}
+  .ring circle.prog{transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)}
+  .ring circle.green{stroke:var(--green)}
+  .ring circle.amber{stroke:var(--gold)}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .rc-pct{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .rc-cap{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-top:3px}
+  .ring-label{font-size:15px;font-weight:800}
+  .ring-val{font-size:13px;color:var(--ink-soft);margin-top:2px;font-variant-numeric:tabular-nums}
+
+  .status{display:grid;gap:10px}
+  .status-line{background:var(--card);border:1px solid var(--line);border-left-width:5px;border-radius:12px;padding:13px 16px;font-size:15px;box-shadow:var(--shadow)}
+  .status-line.good{border-left-color:var(--green)}
+  .status-line.warn{border-left-color:var(--gold)}
+  .status-line.bad{border-left-color:var(--red)}
+  .status-line.muted{border-left-color:var(--line);color:var(--ink-soft)}
+  .status-line b{font-variant-numeric:tabular-nums}
+
+  footer{margin-top:34px;text-align:center;font-size:12px;color:var(--ink-soft)}
+
+  @media (max-width:680px){
+    .cards{grid-template-columns:1fr}
+    .grid{grid-template-columns:1fr 1fr}
+    .grid .full{grid-column:1/-1}
+    .rings{grid-template-columns:1fr}
+    #eventName{font-size:24px}
+  }
+  @media print{
+    body{padding:0}
+    .tabs,.form-card,.actions-row,.del,.tab,footer .noprint{display:none!important}
+    .panel{display:block!important}
+    .card,.report,table{box-shadow:none}
+    header{border-color:#000}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="setupWarn" style="display:none;background:#fff4e0;border:1px solid var(--gold);border-radius:12px;padding:14px 16px;margin:16px 0;font-size:14px">
+    <b>⚙️ Falta configurar o banco de dados.</b><br>
+    Abra este arquivo num editor de texto e cole a sua chave do Firebase lá no comecinho do código (onde está escrito <code>COLE_SUA_CHAVE_AQUI</code>). O passo a passo está na conversa. Enquanto isso, nada é salvo.
+  </div>
+
+  <header>
+    <div class="eyebrow">Livro-caixa do evento</div>
+    <div class="title-row">
+      <input id="eventName" value="Retiro de Jovens" aria-label="Nome do evento">
+    </div>
+    <div class="hint">Clique no nome acima pra trocar. <span id="syncStatus">Conectando ao banco…</span></div>
+  </header>
+
+  <div class="cards">
+    <div class="card in"><div class="lbl">Entradas</div><div class="val" id="cIn">R$ 0,00</div></div>
+    <div class="card out"><div class="lbl">Saídas</div><div class="val" id="cOut">R$ 0,00</div></div>
+    <div class="card bal"><div class="lbl">Saldo em caixa</div><div class="val" id="cBal">R$ 0,00</div><div class="sub" id="cBalSub">tudo zerado por enquanto</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="lanc">Lançamentos</button>
+    <button class="tab" data-tab="meta">Meta &amp; Gráficos</button>
+    <button class="tab" data-tab="dre">DRE</button>
+    <button class="tab" data-tab="bal">Balancete</button>
+  </div>
+
+  <!-- LANÇAMENTOS -->
+  <section class="panel active" id="lanc">
+    <div class="form-card">
+      <h2>Novo lançamento</h2>
+      <div class="grid">
+        <div class="field">
+          <label>Tipo</label>
+          <div class="seg" id="typeSeg">
+            <button type="button" data-type="out" class="on-out">Saída</button>
+            <button type="button" data-type="in">Entrada</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fDesc">Descrição</label>
+          <input id="fDesc" placeholder="Ex.: Aluguel do ônibus">
+        </div>
+        <div class="field">
+          <label for="fCat">Categoria</label>
+          <select id="fCat"></select>
+        </div>
+        <div class="field">
+          <label for="fVal">Valor (R$)</label>
+          <input id="fVal" inputmode="decimal" placeholder="0,00">
+        </div>
+        <div class="field full">
+          <label for="fDate">Data</label>
+          <input id="fDate" type="date">
+        </div>
+        <div class="field" style="grid-column:span 2">
+          <label>&nbsp;</label>
+          <button class="btn" id="addBtn">Adicionar lançamento</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn ghost sm" id="csvBtn">Exportar planilha (CSV)</button>
+      <button class="btn ghost sm" id="printBtn">Imprimir / Salvar PDF</button>
+      <button class="btn ghost sm" id="clearBtn" style="margin-left:auto;color:var(--red);border-color:var(--red)">Apagar tudo</button>
+    </div>
+
+    <div id="tableWrap"></div>
+  </section>
+
+  <!-- META & GRÁFICOS -->
+  <section class="panel" id="meta">
+    <div class="goal-card">
+      <div class="field">
+        <label for="fGoal">Quanto queremos arrecadar? (meta)</label>
+        <input id="fGoal" inputmode="decimal" placeholder="Ex.: 5.000,00">
+      </div>
+      <button class="btn sm" id="saveGoalBtn">Salvar meta</button>
+      <button class="btn ghost sm" id="clearGoalBtn">Apagar</button>
+      <div class="goal-now">Meta atual:<br><b id="goalNow">R$ 0,00</b><span id="goalMsg" style="display:block;color:var(--green);font-weight:700;margin-top:2px;min-height:14px"></span></div>
+    </div>
+
+    <div class="rings">
+      <div class="ring-box">
+        <div class="ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="52"></circle>
+            <circle class="prog green" id="ringIn" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="ring-center"><div class="rc-pct" id="pctIn">—</div><div class="rc-cap">da meta</div></div>
+        </div>
+        <div class="ring-label" style="color:var(--green)">Já arrecadado</div>
+        <div class="ring-val" id="valIn">R$ 0,00</div>
+      </div>
+
+      <div class="ring-box">
+        <div class="ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="52"></circle>
+            <circle class="prog amber" id="ringOut" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="ring-center"><div class="rc-pct" id="pctOut">—</div><div class="rc-cap">da meta</div></div>
+        </div>
+        <div class="ring-label" style="color:var(--gold)">Já gasto</div>
+        <div class="ring-val" id="valOut">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="status" id="statusBox"></div>
+  </section>
+
+  <!-- DRE -->
+  <section class="panel" id="dre">
+    <div class="report">
+      <h2>Demonstração do Resultado (DRE)</h2>
+      <div class="rsub">Quanto entrou, quanto saiu e o que sobrou — do jeito simples.</div>
+      <div id="dreBody"></div>
+    </div>
+  </section>
+
+  <!-- BALANCETE -->
+  <section class="panel" id="bal">
+    <div class="report">
+      <h2>Balancete por categoria</h2>
+      <div class="rsub">O total de cada grupo de entrada e de saída.</div>
+      <div id="balBody"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Caixa do Retiro · feito pro seu evento · dados salvos online e compartilhados com quem tem o link</div>
+  </footer>
+</div>
+
+<!-- Firebase (banco de dados online gratuito) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* =================================================================
+   👇👇👇  COLE A SUA CHAVE DO FIREBASE AQUI DENTRO  👇👇👇
+   Troque as linhas abaixo pelas que você copiar do site do Firebase.
+   (O passo a passo está na conversa com o Claude.)
+   ================================================================= */
+var firebaseConfig = {
+  apiKey: "AIzaSyBNHp2r4-2F7KPxu-vXaJM-J1AO1-jara8",
+  authDomain: "accouting-maka-camp.firebaseapp.com",
+  projectId: "accouting-maka-camp",
+  storageBucket: "accouting-maka-camp.firebasestorage.app",
+  messagingSenderId: "677608122134",
+  appId: "1:677608122134:web:af9e339d54b4d4d1429237"
+};
+/* ===============  NÃO PRECISA MEXER DAQUI PRA BAIXO  =============== */
+</script>
+
+<script>
+/* ---------- estado ---------- */
+var CATS = {
+  out: ["Hospedagem / Aluguel","Transporte / Ônibus","Alimentação","Materiais / Decoração","Preletor / Palestrante","Som / Estrutura","Outros"],
+  in:  ["Inscrições","Doações","Rifa / Bazar","Oferta da igreja","Vendas (lanchonete)","Outros"]
+};
+var state = { name:"Retiro de Jovens", goal:0, items:[] };
+var curType = "out";
+var db = null;          /* conexao com o banco */
+var ready = false;      /* ja recebeu os dados? */
+var saveTimer = null;   /* pra nao salvar a cada tecla */
+
+function isConfigured(){
+  return firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("COLE_") !== 0;
+}
+
+/* liga no banco e fica ouvindo as mudancas em tempo real */
+function connect(){
+  if(!isConfigured()){
+    document.getElementById("setupWarn").style.display = "block";
+    document.getElementById("syncStatus").textContent = "banco não configurado ainda.";
+    return;
+  }
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  }catch(e){
+    document.getElementById("syncStatus").textContent = "erro ao conectar. Confira a chave.";
+    return;
+  }
+
+  /* ouve os lancamentos em tempo real */
+  db.collection("lancamentos").onSnapshot(function(snap){
+    state.items = [];
+    snap.forEach(function(doc){
+      var d = doc.data();
+      state.items.push({ id:doc.id, type:d.type, desc:d.desc, cat:d.cat, val:d.val, date:d.date });
+    });
+    ready = true;
+    document.getElementById("syncStatus").textContent = "✓ tudo salvo online (atualiza pra todos).";
+    render();
+  }, function(err){
+    document.getElementById("syncStatus").textContent = "sem permissão de acesso. Confira as regras do banco.";
+  });
+
+  /* ouve o nome do evento e a meta */
+  db.collection("config").doc("evento").onSnapshot(function(doc){
+    if(doc.exists){
+      var d = doc.data();
+      if(d.name){ state.name = d.name; document.getElementById("eventName").value = d.name; }
+      if(typeof d.goal === "number"){
+        state.goal = d.goal;
+        var gi = document.getElementById("fGoal");
+        if(document.activeElement !== gi){
+          gi.value = d.goal>0 ? d.goal.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : "";
+        }
+      }
+      render();
+    }
+  });
+}
+
+/* salva nome + meta no banco (com um pequeno atraso pra nao floodar) */
+function saveConfig(){
+  if(!db) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    db.collection("config").doc("evento").set({
+      name: document.getElementById("eventName").value || "Retiro de Jovens",
+      goal: state.goal || 0
+    }, { merge:true });
+  }, 500);
+}
+/* salva agora, sem esperar (usado pelos botões Salvar/Apagar meta) */
+function saveConfigNow(){
+  if(!db){ alert("O banco ainda não está conectado. Veja o status no topo da tela."); return; }
+  clearTimeout(saveTimer);
+  db.collection("config").doc("evento").set({
+    name: document.getElementById("eventName").value || "Retiro de Jovens",
+    goal: state.goal || 0
+  }, { merge:true }).catch(function(){
+    var msg = document.getElementById("goalMsg");
+    if(msg){ msg.style.color = "var(--red)"; msg.textContent = "Não consegui salvar — confira a internet."; }
+  });
+}
+
+/* ---------- helpers ---------- */
+function brl(n){ return "R$ " + (n||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function parseVal(s){
+  if(!s) return 0;
+  s = (""+s).trim().replace(/\s/g,"").replace(/r\$/i,"");
+  // aceita 1.234,56 e 1234.56 e 1234,56
+  if(s.indexOf(",")>-1){ s = s.replace(/\./g,"").replace(",","."); }
+  var n = parseFloat(s);
+  return isNaN(n) ? 0 : Math.round(n*100)/100;
+}
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){ if(!iso) return ""; var p=iso.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ---------- categorias ---------- */
+function fillCats(){
+  var sel = document.getElementById("fCat");
+  sel.innerHTML = "";
+  CATS[curType].forEach(function(c){
+    var o=document.createElement("option"); o.value=c; o.textContent=c; sel.appendChild(o);
+  });
+}
+
+/* ---------- totais ---------- */
+function totals(){
+  var tIn=0,tOut=0;
+  state.items.forEach(function(it){ if(it.type==="in") tIn+=it.val; else tOut+=it.val; });
+  return { tIn:tIn, tOut:tOut, bal:tIn-tOut };
+}
+
+/* ---------- render ---------- */
+function render(){
+  var t = totals();
+  document.getElementById("cIn").textContent = brl(t.tIn);
+  document.getElementById("cOut").textContent = brl(t.tOut);
+  var balEl = document.getElementById("cBal");
+  balEl.textContent = brl(t.bal);
+  balEl.classList.toggle("neg", t.bal<0);
+  document.getElementById("cBalSub").textContent =
+    t.bal>0 ? "sobrou dinheiro 🙌" : t.bal<0 ? "está faltando dinheiro" : "entradas e saídas empatadas";
+
+  renderTable();
+  renderGoals(t);
+  renderDRE(t);
+  renderBal();
+}
+
+/* ---------- meta + aneis ---------- */
+var RING_C = 2 * Math.PI * 52; /* circunferencia do anel */
+function setRing(id, pct){
+  pct = Math.max(0, Math.min(1, pct||0));
+  var el = document.getElementById(id);
+  el.style.strokeDasharray = RING_C;
+  el.style.strokeDashoffset = RING_C * (1 - pct);
+}
+function renderGoals(t){
+  var goal = state.goal || 0;
+  document.getElementById("goalNow").textContent = brl(goal);
+
+  var pIn  = goal > 0 ? t.tIn  / goal : 0;
+  var pOut = goal > 0 ? t.tOut / goal : 0;
+  setRing("ringIn",  pIn);
+  setRing("ringOut", pOut);
+  document.getElementById("pctIn").textContent  = goal > 0 ? Math.round(pIn*100)  + "%" : "—";
+  document.getElementById("pctOut").textContent = goal > 0 ? Math.round(pOut*100) + "%" : "—";
+  document.getElementById("valIn").textContent  = brl(t.tIn)  + (goal>0 ? " de " + brl(goal) : "");
+  document.getElementById("valOut").textContent = brl(t.tOut) + (goal>0 ? " de " + brl(goal) : "");
+
+  /* frases dinamicas */
+  var box = document.getElementById("statusBox");
+  var html = "";
+
+  if(goal <= 0){
+    html += '<div class="status-line muted">Defina lá em cima quanto vocês querem arrecadar pra acompanhar o progresso da meta.</div>';
+  } else {
+    var falta = goal - t.tIn;
+    if(falta > 0){
+      html += '<div class="status-line warn">Faltam <b>'+brl(falta)+'</b> pra alcançar a meta de '+brl(goal)+'.</div>';
+    } else {
+      html += '<div class="status-line good">Meta batida! 🎉 Vocês já passaram em <b>'+brl(-falta)+'</b> do previsto.</div>';
+    }
+  }
+
+  /* as entradas cobrem as saidas? (nao depende de meta) */
+  if(t.tOut > 0){
+    if(t.tIn >= t.tOut){
+      html += '<div class="status-line good">Com o que entrou, dá pra cobrir as despesas. Sobra de caixa: <b>'+brl(t.bal)+'</b>.</div>';
+    } else {
+      html += '<div class="status-line bad">As entradas ainda não cobrem as saídas — faltam <b>'+brl(t.tOut - t.tIn)+'</b> pra pagar tudo.</div>';
+    }
+  } else if(t.tIn > 0){
+    html += '<div class="status-line good">Nenhuma despesa lançada ainda. Caixa atual: <b>'+brl(t.tIn)+'</b>.</div>';
+  } else {
+    html += '<div class="status-line muted">Comece lançando as entradas e saídas na aba Lançamentos pra ver os gráficos se mexerem.</div>';
+  }
+
+  box.innerHTML = html;
+}
+
+function renderTable(){
+  var wrap = document.getElementById("tableWrap");
+  if(!state.items.length){
+    wrap.innerHTML = '<div class="empty">Nenhum lançamento ainda.<br>Comece adicionando os gastos do retiro lá em cima 👆</div>';
+    return;
+  }
+  var rows = state.items.slice().sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+  var html = '<table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th class="num">Valor</th><th></th></tr></thead><tbody>';
+  rows.forEach(function(it){
+    html += '<tr>'
+      + '<td>'+fmtDate(it.date)+'</td>'
+      + '<td>'+escapeHtml(it.desc)+'</td>'
+      + '<td>'+escapeHtml(it.cat)+'</td>'
+      + '<td><span class="tag '+it.type+'">'+(it.type==="in"?"Entrada":"Saída")+'</span></td>'
+      + '<td class="num '+(it.type==="in"?"pos":"neg")+'">'+(it.type==="in"?"+":"−")+" "+brl(it.val).replace("R$ ","")+'</td>'
+      + '<td><button class="del" title="Excluir" data-id="'+it.id+'">✕</button></td>'
+      + '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  wrap.querySelectorAll(".del").forEach(function(b){
+    b.onclick=function(){ removeItem(b.getAttribute("data-id")); };
+  });
+}
+
+function renderDRE(t){
+  var byCat = groupByCat();
+  var h = '';
+  h += '<div class="line head"><span>Receitas (entradas)</span><span></span></div>';
+  CATS.in.forEach(function(c){ if(byCat.in[c]) h+= subLine(c, byCat.in[c]); });
+  h += '<div class="line"><span><strong>Total de receitas</strong></span><span class="v pos">'+brl(t.tIn)+'</span></div>';
+  h += '<div class="group-gap"></div>';
+  h += '<div class="line head"><span>Despesas (saídas)</span><span></span></div>';
+  CATS.out.forEach(function(c){ if(byCat.out[c]) h+= subLine(c, byCat.out[c]); });
+  h += '<div class="line"><span><strong>Total de despesas</strong></span><span class="v neg">− '+brl(t.tOut).replace("R$ ","R$ ")+'</span></div>';
+  h += '<div class="line total"><span>'+(t.bal>=0?"Resultado (sobra)":"Resultado (falta)")+'</span><span class="'+(t.bal>=0?"pos":"neg")+'">'+brl(t.bal)+'</span></div>';
+  document.getElementById("dreBody").innerHTML = h;
+}
+
+function renderBal(){
+  var byCat = groupByCat();
+  var t = totals();
+  var h = '';
+  h += '<div class="line head"><span>Conta</span><span>Saldo</span></div>';
+  CATS.in.forEach(function(c){ if(byCat.in[c]) h+='<div class="line"><span>'+c+' <span class="tag in">entrada</span></span><span class="v pos">'+brl(byCat.in[c])+'</span></div>'; });
+  CATS.out.forEach(function(c){ if(byCat.out[c]) h+='<div class="line"><span>'+c+' <span class="tag out">saída</span></span><span class="v neg">− '+brl(byCat.out[c]).replace("R$ ","R$ ")+'</span></div>'; });
+  if(!state.items.length) h += '<div class="line"><span style="color:var(--ink-soft)">Sem lançamentos ainda</span><span></span></div>';
+  h += '<div class="line total"><span>Saldo final em caixa</span><span class="'+(t.bal>=0?"pos":"neg")+'">'+brl(t.bal)+'</span></div>';
+  document.getElementById("balBody").innerHTML = h;
+}
+
+function subLine(c,v){ return '<div class="line sub"><span>'+c+'</span><span class="v">'+brl(v)+'</span></div>'; }
+
+function groupByCat(){
+  var g={in:{},out:{}};
+  state.items.forEach(function(it){ g[it.type][it.cat]=(g[it.type][it.cat]||0)+it.val; });
+  return g;
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+/* ---------- ações ---------- */
+function addItem(){
+  var desc = document.getElementById("fDesc").value.trim();
+  var val = parseVal(document.getElementById("fVal").value);
+  var cat = document.getElementById("fCat").value;
+  var date = document.getElementById("fDate").value || todayISO();
+  if(!desc){ alert("Escreva uma descrição (ex.: Aluguel do ônibus)."); return; }
+  if(val<=0){ alert("Digite um valor maior que zero."); return; }
+  if(!db){ alert("O banco de dados ainda não foi configurado. Veja o aviso amarelo no topo."); return; }
+  db.collection("lancamentos").add({
+    type:curType, desc:desc, cat:cat, val:val, date:date,
+    ts: firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){ alert("Não consegui salvar. Confira sua internet e as regras do banco."); });
+  document.getElementById("fDesc").value="";
+  document.getElementById("fVal").value="";
+  document.getElementById("fDesc").focus();
+  /* o anel/lista atualizam sozinhos quando o banco devolve o dado */
+}
+function removeItem(id){
+  if(!db) return;
+  db.collection("lancamentos").doc(id).delete();
+}
+function clearAll(){
+  if(!db){ alert("Banco não configurado ainda."); return; }
+  if(confirm("Tem certeza? Isso apaga TODOS os lançamentos pra todo mundo e não tem como voltar.")){
+    db.collection("lancamentos").get().then(function(snap){
+      var batch = db.batch();
+      snap.forEach(function(doc){ batch.delete(doc.ref); });
+      return batch.commit();
+    });
+  }
+}
+function exportCSV(){
+  var t=totals();
+  var lines=[["Data","Descricao","Categoria","Tipo","Valor"]];
+  state.items.slice().sort(function(a,b){return (a.date||"").localeCompare(b.date||"");}).forEach(function(it){
+    lines.push([fmtDate(it.date),it.desc,it.cat,(it.type==="in"?"Entrada":"Saida"),(it.type==="in"?"":"-")+it.val.toFixed(2).replace(".",",")]);
+  });
+  lines.push([]);
+  lines.push(["","","","Total Entradas",t.tIn.toFixed(2).replace(".",",")]);
+  lines.push(["","","","Total Saidas","-"+t.tOut.toFixed(2).replace(".",",")]);
+  lines.push(["","","","Saldo",t.bal.toFixed(2).replace(".",",")]);
+  var csv = lines.map(function(r){ return r.map(function(c){ return '"'+(""+(c==null?"":c)).replace(/"/g,'""')+'"'; }).join(";"); }).join("\n");
+  var blob = new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=(state.name||"retiro").replace(/[^\w]+/g,"_")+".csv";
+  a.click();
+}
+
+/* ---------- eventos ---------- */
+document.querySelectorAll(".tab").forEach(function(tab){
+  tab.onclick=function(){
+    document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+    document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});
+    tab.classList.add("active");
+    document.getElementById(tab.getAttribute("data-tab")).classList.add("active");
+  };
+});
+document.querySelectorAll("#typeSeg button").forEach(function(b){
+  b.onclick=function(){
+    curType=b.getAttribute("data-type");
+    document.querySelectorAll("#typeSeg button").forEach(function(x){ x.classList.remove("on-in","on-out"); });
+    b.classList.add(curType==="in"?"on-in":"on-out");
+    fillCats();
+  };
+});
+document.getElementById("addBtn").onclick=addItem;
+document.getElementById("fVal").addEventListener("keydown",function(e){ if(e.key==="Enter") addItem(); });
+document.getElementById("csvBtn").onclick=exportCSV;
+document.getElementById("printBtn").onclick=function(){ window.print(); };
+document.getElementById("clearBtn").onclick=clearAll;
+document.getElementById("eventName").addEventListener("input",saveConfig);
+
+/* enquanto digita: anéis se mexem ao vivo e salva sozinho */
+document.getElementById("fGoal").addEventListener("input",function(e){
+  state.goal = parseVal(e.target.value);
+  saveConfig();
+  render();
+});
+
+/* botão Salvar meta: confirma na hora e mostra aviso "salva" */
+document.getElementById("saveGoalBtn").onclick=function(){
+  state.goal = parseVal(document.getElementById("fGoal").value);
+  saveConfigNow();
+  render();
+  var msg = document.getElementById("goalMsg");
+  msg.style.color = "var(--green)";
+  msg.textContent = state.goal>0 ? "✓ Meta salva!" : "";
+  setTimeout(function(){ msg.textContent=""; }, 2500);
+};
+
+/* botão Apagar meta: zera a meta */
+document.getElementById("clearGoalBtn").onclick=function(){
+  if(confirm("Apagar a meta? Os lançamentos continuam, só a meta volta pra zero.")){
+    state.goal = 0;
+    document.getElementById("fGoal").value = "";
+    saveConfigNow();
+    render();
+    var msg = document.getElementById("goalMsg");
+    msg.textContent = "Meta apagada.";
+    setTimeout(function(){ msg.textContent=""; }, 2500);
+  }
+};
+
+/* ---------- init ---------- */
+document.getElementById("fDate").value = todayISO();
+fillCats();
+render();
+connect();
+</script>
+</body>
+</html>
