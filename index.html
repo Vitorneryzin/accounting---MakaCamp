@@ -3,148 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caixa do Retiro — Controle Financeiro</title>
+<title>Acampa 2026 · Fascinados — Caixa</title>
 <style>
+  /* ===== ACAMPA 2026 · FASCINADOS — tema escuro ===== */
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap');
   :root{
-    --paper:#fbf7ee;
-    --ink:#23291f;
-    --ink-soft:#5c6553;
-    --line:#e3dccb;
-    --green:#2f7a52;
-    --green-soft:#e7f1e9;
-    --red:#b0472f;
-    --red-soft:#f6e7e2;
-    --gold:#c08a2d;
-    --gold-soft:#f6ecd6;
-    --card:#ffffff;
-    --shadow:0 1px 2px rgba(35,41,31,.06),0 6px 18px rgba(35,41,31,.06);
+    --bg:#0e0e11;
+    --bg-2:#16161b;
+    --card:#1a1a20;
+    --card-2:#212129;
+    --line:#2d2d37;
+    --ink:#f4f3f0;
+    --ink-soft:#9a9aa6;
+    --red:#ff3b2e;        /* vermelho-coral FASCINADOS (saídas / gastos) */
+    --red-soft:rgba(255,59,46,.15);
+    --blue:#3d7bff;       /* azul elétrico (entradas / arrecadado) */
+    --blue-soft:rgba(61,123,255,.16);
+    --amber:#ff8a3d;      /* laranja do gradiente (avisos) */
+    /* aliases p/ compatibilidade com classes antigas */
+    --green:#3d7bff; --green-soft:rgba(61,123,255,.16);
+    --gold:#ff3b2e;  --gold-soft:rgba(255,59,46,.15);
+    --grad:linear-gradient(90deg,#ff8a3d,#ff3b6b,#9b4dff,#3d7bff);
+    --shadow:0 2px 8px rgba(0,0,0,.45),0 14px 34px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-    background:var(--paper);color:var(--ink);
-    line-height:1.45;-webkit-font-smoothing:antialiased;
-    padding:0 16px 80px;
+    font-family:'Inter',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);
+    line-height:1.5;-webkit-font-smoothing:antialiased;
+    padding:0 16px 80px;color-scheme:dark;
   }
   .wrap{max-width:920px;margin:0 auto}
 
-  header{padding:26px 0 18px;border-bottom:2px solid var(--ink);margin-bottom:22px}
-  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
-  .title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:4px}
+  /* header */
+  header{padding:0 0 20px;margin-bottom:24px;border-bottom:1px solid var(--line)}
+  .brandbar{height:5px;border-radius:0 0 5px 5px;background:var(--grad);margin-bottom:18px}
+  .head-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--red);font-weight:800}
+  .eyebrow.alt{color:var(--ink-soft)}
+  .title-row{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:18px}
   #eventName{
-    font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+    font-family:'Anton',sans-serif;font-size:46px;line-height:.98;letter-spacing:.012em;
+    text-transform:uppercase;color:var(--ink);
     border:none;background:transparent;border-bottom:2px dashed transparent;
-    padding:2px 0;min-width:220px;flex:1;
+    padding:2px 0;flex:1;min-width:0;
   }
+  .brand-logo{height:108px;width:auto;flex-shrink:0;filter:drop-shadow(0 3px 8px rgba(0,0,0,.55))}
   #eventName:hover{border-bottom-color:var(--line)}
-  #eventName:focus{outline:none;border-bottom-color:var(--gold)}
-  .hint{font-size:12px;color:var(--ink-soft)}
+  #eventName:focus{outline:none;border-bottom-color:var(--red)}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:8px}
+  #syncStatus{color:var(--ink-soft)}
 
   /* cards */
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
-  .card .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
-  .card .val{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  .card.in .val{color:var(--green)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+  .card .val{font-family:'Anton',sans-serif;font-size:30px;margin-top:8px;letter-spacing:.01em;font-variant-numeric:tabular-nums;line-height:1}
+  .card.in .val{color:var(--blue)}
   .card.out .val{color:var(--red)}
-  .card.bal{background:var(--ink);border-color:var(--ink)}
-  .card.bal .lbl{color:#cdd2c4}
+  .card.bal{background:var(--card-2);border:1px solid var(--red);box-shadow:0 0 0 1px rgba(255,59,46,.25),0 10px 30px rgba(255,59,46,.12)}
+  .card.bal .lbl{color:rgba(255,255,255,.8)}
   .card.bal .val{color:#fff}
-  .card.bal .val.neg{color:#ff9d86}
-  .card.bal .sub{font-size:12px;color:#cdd2c4;margin-top:2px}
+  .card.bal .val.neg{color:var(--red)}
+  .card.bal .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
 
   /* tabs */
   .tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:20px;flex-wrap:wrap}
   .tab{
-    border:none;background:transparent;font:inherit;font-weight:700;font-size:14px;
+    border:none;background:transparent;font:inherit;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.04em;
     color:var(--ink-soft);padding:10px 14px;cursor:pointer;border-radius:8px 8px 0 0;
     border-bottom:3px solid transparent;margin-bottom:-1px;
   }
   .tab:hover{color:var(--ink)}
-  .tab.active{color:var(--ink);border-bottom-color:var(--gold)}
+  .tab.active{color:var(--ink);border-bottom-color:var(--red)}
 
   .panel{display:none}
   .panel.active{display:block}
 
   /* form */
-  .form-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:22px}
-  .form-card h2{font-size:15px;margin-bottom:14px}
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:22px}
+  .form-card h2{font-size:14px;margin-bottom:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft)}
   .grid{display:grid;grid-template-columns:120px 1fr 1fr 140px;gap:10px;align-items:end}
   .field{display:flex;flex-direction:column;gap:5px}
   .field label{font-size:12px;font-weight:700;color:var(--ink-soft)}
   input,select{
-    font:inherit;font-size:15px;padding:9px 10px;border:1px solid var(--line);
-    border-radius:9px;background:var(--paper);color:var(--ink);width:100%;
+    font:inherit;font-size:15px;padding:10px 11px;border:1px solid var(--line);
+    border-radius:9px;background:var(--bg-2);color:var(--ink);width:100%;
   }
-  input:focus,select:focus{outline:none;border-color:var(--gold);background:#fff}
+  input::placeholder{color:#6a6a74}
+  input:focus,select:focus{outline:none;border-color:var(--red);background:#1d1d24}
   .seg{display:flex;gap:6px}
   .seg button{
-    flex:1;font:inherit;font-weight:700;font-size:13px;padding:9px 6px;border-radius:9px;cursor:pointer;
-    border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);
+    flex:1;font:inherit;font-weight:700;font-size:13px;padding:10px 6px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:var(--bg-2);color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;
   }
-  .seg button.on-in{background:var(--green);border-color:var(--green);color:#fff}
+  .seg button.on-in{background:var(--blue);border-color:var(--blue);color:#fff}
   .seg button.on-out{background:var(--red);border-color:var(--red);color:#fff}
   .btn{
-    font:inherit;font-weight:700;font-size:15px;padding:11px 18px;border-radius:10px;cursor:pointer;
-    border:1px solid var(--ink);background:var(--ink);color:#fff;
+    font:inherit;font-weight:800;font-size:15px;padding:12px 18px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--red);background:var(--red);color:#fff;text-transform:uppercase;letter-spacing:.04em;
   }
-  .btn:hover{opacity:.92}
-  .btn.ghost{background:transparent;color:var(--ink)}
-  .btn.ghost:hover{background:#fff}
-  .btn.sm{font-size:13px;padding:8px 12px}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn.ghost:hover{background:var(--card-2);border-color:var(--ink-soft)}
+  .btn.sm{font-size:13px;padding:9px 13px}
   .actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
 
   /* table */
-  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
   th,td{padding:11px 14px;text-align:left;font-size:14px;border-bottom:1px solid var(--line)}
-  th{background:var(--paper);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+  th{background:var(--bg-2);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
   td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
   tr:last-child td{border-bottom:none}
-  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
-  .tag.in{background:var(--green-soft);color:var(--green)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em}
+  .tag.in{background:var(--blue-soft);color:var(--blue)}
   .tag.out{background:var(--red-soft);color:var(--red)}
-  .pos{color:var(--green);font-weight:700}
+  .pos{color:var(--blue);font-weight:700}
   .neg{color:var(--red);font-weight:700}
   .del{border:none;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;padding:4px 6px;border-radius:6px}
   .del:hover{background:var(--red-soft);color:var(--red)}
   .empty{text-align:center;color:var(--ink-soft);padding:34px 16px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
 
   /* report blocks */
-  .report{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
-  .report h2{font-size:18px;margin-bottom:2px}
+  .report{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .report h2{font-family:'Anton',sans-serif;font-size:24px;margin-bottom:2px;text-transform:uppercase;letter-spacing:.01em}
   .report .rsub{font-size:13px;color:var(--ink-soft);margin-bottom:18px}
   .line{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
   .line .v{font-variant-numeric:tabular-nums;font-weight:700}
-  .line.head{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;border-bottom:2px solid var(--ink)}
+  .line.head{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:800;border-bottom:2px solid var(--line)}
   .line.sub{padding-left:16px;color:var(--ink-soft);font-size:14px}
   .line.total{border-bottom:none;border-top:2px solid var(--ink);margin-top:4px;font-size:18px;font-weight:800;padding-top:12px}
   .group-gap{height:18px}
 
   /* meta + aneis */
-  .goal-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);margin-bottom:22px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .goal-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:22px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
   .goal-card .field{flex:1;min-width:200px}
   .goal-now{font-size:13px;color:var(--ink-soft)}
-  .goal-now b{color:var(--gold);font-size:16px}
+  .goal-now b{color:var(--ink);font-size:16px}
 
   .rings{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
-  .ring-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 14px 16px;box-shadow:var(--shadow);text-align:center}
+  .ring-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 14px 16px;text-align:center}
   .ring{position:relative;width:160px;height:160px;margin:0 auto 12px}
   .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
   .ring circle{fill:none;stroke-width:13;stroke-linecap:round}
   .ring circle.track{stroke:var(--line)}
   .ring circle.prog{transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)}
-  .ring circle.green{stroke:var(--green)}
-  .ring circle.amber{stroke:var(--gold)}
+  .ring circle.green{stroke:var(--blue)}
+  .ring circle.amber{stroke:var(--red)}
   .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .rc-pct{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .rc-pct{font-family:'Anton',sans-serif;font-size:38px;letter-spacing:.01em;line-height:1}
   .rc-cap{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-top:3px}
-  .ring-label{font-size:15px;font-weight:800}
+  .ring-label{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
   .ring-val{font-size:13px;color:var(--ink-soft);margin-top:2px;font-variant-numeric:tabular-nums}
 
   .status{display:grid;gap:10px}
-  .status-line{background:var(--card);border:1px solid var(--line);border-left-width:5px;border-radius:12px;padding:13px 16px;font-size:15px;box-shadow:var(--shadow)}
-  .status-line.good{border-left-color:var(--green)}
-  .status-line.warn{border-left-color:var(--gold)}
+  .status-line{background:var(--card);border:1px solid var(--line);border-left-width:5px;border-radius:12px;padding:13px 16px;font-size:15px}
+  .status-line.good{border-left-color:var(--blue)}
+  .status-line.warn{border-left-color:var(--amber)}
   .status-line.bad{border-left-color:var(--red)}
   .status-line.muted{border-left-color:var(--line);color:var(--ink-soft)}
   .status-line b{font-variant-numeric:tabular-nums}
@@ -156,31 +171,36 @@
     .grid{grid-template-columns:1fr 1fr}
     .grid .full{grid-column:1/-1}
     .rings{grid-template-columns:1fr}
-    #eventName{font-size:24px}
+    #eventName{font-size:34px}
+    .brand-logo{height:66px}
   }
   @media print{
-    body{padding:0}
+    body{padding:0;background:#fff;color:#000}
     .tabs,.form-card,.actions-row,.del,.tab,footer .noprint{display:none!important}
     .panel{display:block!important}
     .card,.report,table{box-shadow:none}
-    header{border-color:#000}
   }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div id="setupWarn" style="display:none;background:#fff4e0;border:1px solid var(--gold);border-radius:12px;padding:14px 16px;margin:16px 0;font-size:14px">
+  <div id="setupWarn" style="display:none;background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:14px 16px;margin:16px 0;font-size:14px;color:var(--ink)">
     <b>⚙️ Falta configurar o banco de dados.</b><br>
     Abra este arquivo num editor de texto e cole a sua chave do Firebase lá no comecinho do código (onde está escrito <code>COLE_SUA_CHAVE_AQUI</code>). O passo a passo está na conversa. Enquanto isso, nada é salvo.
   </div>
 
   <header>
-    <div class="eyebrow">caixa Camp</div>
-    <div class="title-row">
-      <input id="eventName" value="Retiro de Jovens" aria-label="Nome do evento">
+    <div class="brandbar"></div>
+    <div class="head-top">
+      <span class="eyebrow">Acampa 2026</span>
+      <span class="eyebrow alt">Jovens · 08 e 09 Ago</span>
     </div>
-    <div class="hint">Clique no nome acima pra trocar. <span id="syncStatus">Conectando ao banco…</span></div>
+    <div class="title-row">
+      <input id="eventName" value="Fascinados" aria-label="Nome do evento">
+      <img src="logo.png" alt="Makarios Movement" class="brand-logo" onerror="this.style.display='none'">
+    </div>
+    <div class="hint">Toque no nome pra trocar. <span id="syncStatus">Conectando ao banco…</span></div>
   </header>
 
   <div class="cards">
@@ -191,7 +211,7 @@
 
   <div class="tabs">
     <button class="tab active" data-tab="lanc">Lançamentos</button>
-    <button class="tab" data-tab="meta">Gráficos</button>
+    <button class="tab" data-tab="meta">Meta &amp; Gráficos</button>
     <button class="tab" data-tab="dre">DRE</button>
     <button class="tab" data-tab="bal">Balancete</button>
   </div>
@@ -300,7 +320,7 @@
   </section>
 
   <footer>
-    <div>Maka Camp</div>
+    <div>Caixa do Retiro · feito pro seu evento · dados salvos online e compartilhados com quem tem o link</div>
   </footer>
 </div>
 
