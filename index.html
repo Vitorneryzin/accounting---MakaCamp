@@ -10,8 +10,8 @@
   :root{
     --bg:#0e0e11;
     --bg-2:#16161b;
-    --card:#1a1a20;
-    --card-2:#212129;
+    --card:rgba(26,26,32,.80);
+    --card-2:rgba(33,33,41,.80);
     --line:#2d2d37;
     --ink:#f4f3f0;
     --ink-soft:#9a9aa6;
@@ -180,9 +180,22 @@
     .panel{display:block!important}
     .card,.report,table{box-shadow:none}
   }
+
+  /* ===== wallpaper fixo do Jesus (Fascinados) ===== */
+  .bg-jesus{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:url('jesus.png') no-repeat center 46%;
+    background-size:min(660px,92%) auto;opacity:.55}
+  .bg-jesus::after{content:'';position:absolute;inset:0;
+    background:radial-gradient(125% 85% at 50% 42%, rgba(14,14,17,.22), rgba(14,14,17,.88) 78%)}
+  .wrap{position:relative;z-index:1}
+  .card,.form-card,.goal-card,.ring-box,.report,.status-line,.empty,table{
+    backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+  #eventName{text-shadow:0 2px 22px rgba(0,0,0,.6)}
+  .head-top .eyebrow{text-shadow:0 1px 10px rgba(0,0,0,.6)}
 </style>
 </head>
 <body>
+<div class="bg-jesus"></div>
 <div class="wrap">
 
   <div id="setupWarn" style="display:none;background:var(--red-soft);border:1px solid var(--red);border-radius:12px;padding:14px 16px;margin:16px 0;font-size:14px;color:var(--ink)">
